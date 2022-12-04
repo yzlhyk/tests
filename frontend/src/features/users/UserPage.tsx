@@ -1,4 +1,4 @@
-import { Link, useParams, useRevalidator } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useAppSelector } from '../../app/hooks';
 import { RootState } from '../../app/store';
 import { Post, selectPostsByUser } from '../posts/postsSlice';

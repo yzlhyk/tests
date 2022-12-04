@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { useParams, redirect, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { RootState } from "../../app/store";
 import { selectPostById, updatePost } from "./postsSlice";
 
