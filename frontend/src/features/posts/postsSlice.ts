@@ -3,6 +3,7 @@ import {
   createSelector,
   createSlice,
   createEntityAdapter,
+  EntityId,
 } from "@reduxjs/toolkit";
 
 import { RootState, baseUrl } from "../../app/store";
@@ -35,34 +36,35 @@ const initialState = postsAdapter.getInitialState({
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const res = await fetch(`${baseUrl}/posts?_limit=30`);
   const json = res.json();
-  console.log("Posts response: ", res);
-  console.log('post json: ', json)
   return json;
 });
+
+export const updatePost = createAsyncThunk("posts/updatePost", async ({ post, title }: any) => {
+  console.log('update post fetch: ', title)
+  await fetch(`${baseUrl}/posts/${post.id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      ...post,
+      title
+    }),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    }
+  }).then((response) => response.json())
+    .then((json) => console.log('res of put:', json));
+
+  return { post, title };
+})
+
+export const deletePost = createAsyncThunk("posts/deletePost", async (postId: EntityId) => {
+  await fetch(`${baseUrl}/posts/${postId}`, { method: 'DELETE' });
+  return postId;
+})
 
 const postsSlice = createSlice({
   name: "posts",
   initialState,
-  reducers: {
-    postUpdated(state, action) {
-      const { id, title, content } = action.payload;
-      const existingPost = state.entities[id];
-      if (existingPost) {
-        existingPost.title = title;
-        existingPost.content = content;
-      }
-    },
-    reactionAdded(state, action) {
-      const { postId, reaction } = action.payload as {
-        postId: string;
-        reaction: string;
-      };
-      const existingPost = state.entities[postId];
-      if (existingPost) {
-        existingPost.reactionsCount[reaction]++;
-      }
-    },
-  },
+  reducers: {},
   extraReducers(builder) {
     builder
       .addCase(fetchPosts.pending, (state, action) => {
@@ -74,20 +76,27 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = DataStatus.FAILED;
-        // state.error = action.error.message;
       })
-      // .addCase(addNewPost.fulfilled, postsAdapter.addOne);
+      .addCase(updatePost.fulfilled, (state, { payload: { post, title } }) => {
+        state.status = DataStatus.SUCCEEDED;
+        postsAdapter.updateOne(state, { id: post.id, changes: { title } });
+      })
+      .addCase(updatePost.rejected, (state) => {
+        state.status = DataStatus.FAILED
+      })
+      .addCase(deletePost.rejected, (state) => {
+        state.status = DataStatus.FAILED
+      })
+      .addCase(deletePost.fulfilled, (state, { payload: id }) => {
+        state.status = DataStatus.SUCCEEDED
+        postsAdapter.removeOne(state, id!)
+      }).addCase(deletePost.pending, (state) => {
+        state.status = DataStatus.LOADING;
+      })
   },
 });
 
-export const { postUpdated, reactionAdded } = postsSlice.actions;
-
 export default postsSlice.reducer;
-
-// export const selectAllPosts = (state: RootState) => state.posts.posts;
-
-// export const selectPostById = (state: RootState, postId: string | undefined) =>
-//   state.posts.posts.find((post: Post) => post.id === postId);
 
 export const {
   selectAll: selectAllPosts,

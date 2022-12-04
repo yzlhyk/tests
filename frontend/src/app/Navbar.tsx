@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 
 export const Navbar = () => {
@@ -10,7 +9,6 @@ export const Navbar = () => {
         <div className="navContent">
           <div className="navLinks">
             <NavLink to="/">Posts</NavLink>
-            <NavLink to="/users">Users</NavLink>
           </div>
         </div>
       </section>

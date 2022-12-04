@@ -1,8 +1,8 @@
 import { ChangeEvent, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { useParams, redirect } from "react-router-dom";
+import { useParams, redirect, useNavigate } from "react-router-dom";
 import { RootState } from "../../app/store";
-import { Post, postUpdated, selectPostById } from "./postsSlice";
+import { selectPostById, updatePost } from "./postsSlice";
 
 type PostParams = {
   postId: string;
@@ -10,24 +10,23 @@ type PostParams = {
 export const EditPostForm = () => {
   const { postId } = useParams<PostParams>();
 
+  const navigate = useNavigate();
+
   const post = useAppSelector((state: RootState) =>
     selectPostById(state, postId!)
   );
 
   const [title, setTitle] = useState(post?.title);
-  const [content, setContent] = useState(post?.content);
 
   const dispatch = useAppDispatch();
 
   const onTitleChanged = (e: ChangeEvent<HTMLInputElement>) =>
     setTitle(e.target.value);
-  const onContentChanged = (e: ChangeEvent<HTMLTextAreaElement>) =>
-    setContent(e.target.value);
 
   const onSavePostClicked = () => {
-    if (title && content) {
-      dispatch(postUpdated({ id: postId, title, content }));
-      redirect(`/posts/${postId}`);
+    if (title) {
+      dispatch(updatePost({post, title}));
+      navigate('/');
     }
   };
   return (
@@ -42,13 +41,6 @@ export const EditPostForm = () => {
           placeholder="What's on your mine?"
           value={title}
           onChange={onTitleChanged}
-        />
-        <label htmlFor="postContent">Content:</label>
-        <textarea
-          id="postContent"
-          name="postContent"
-          value={content}
-          onChange={onContentChanged}
         />
       </form>
       <button type="button" onClick={onSavePostClicked}>

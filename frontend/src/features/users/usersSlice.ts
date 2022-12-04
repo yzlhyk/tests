@@ -34,8 +34,3 @@ export default usersSlice.reducer;
 
 export const { selectAll: selectAllUsers, selectById: selectUserById } =
   usersAdapter.getSelectors((state: RootState) => state.users);
-
-// export const selectAllUsers = (state: RootState) => state.users;
-
-// export const selectUserById = (state: RootState, userId: string | undefined) =>
-//   state.users.find((user: UserState) => user.id === userId);

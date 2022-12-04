@@ -1,10 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RootState, DataStatus } from "../../app/store";
 import { PostAuthor } from "./PostAuthor";
-import { fetchPosts, selectPostIds, selectPostById } from "./postsSlice";
+import {
+  fetchPosts,
+  selectPostIds,
+  selectPostById,
+  deletePost,
+} from "./postsSlice";
 
-import { TimeAgo } from "./TimeAgo";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { Spinner } from "../../components/Spinner";
 import { EntityId } from "@reduxjs/toolkit";
@@ -16,25 +20,28 @@ let PostExerpt = ({ postId }: { postId: EntityId }) => {
   const post = useAppSelector((state: RootState) =>
     selectPostById(state, postId)
   );
+  const dispatch = useAppDispatch();
+
+  const onDelete = useCallback(() => {
+    dispatch(deletePost(postId));
+  }, []);
 
   if (!post) {
     return <div>Invalid Post</div>;
   }
-
   return (
     <article className="post-excerpt" key={post.id}>
       <h3>{post.title}</h3>
-      <h4>Album: </h4>
       <PostAlbum userId={post.userId} />
+
       <div>
         <PostAuthor userId={post.userId} />
-        <TimeAgo timestamp={post.date} />
       </div>
       <p className="post-content">{post.content}</p>
-
-      <Link to={`/posts/${post.id}`} className="button muted-button">
-        View Post
+      <Link to={`/editPost/${post.id}`} className="button">
+        Edit Post
       </Link>
+      <button onClick={onDelete} className="button delete">Delete Post</button>
     </article>
   );
 };
@@ -59,8 +66,8 @@ const PostsList: React.FC<any> = () => {
   if (postStatus === DataStatus.LOADING) {
     content = <Spinner text="Loading..." />;
   } else if (postStatus === DataStatus.SUCCEEDED) {
-    content = orderedPostsIds.map((postId: EntityId) => (
-      <PostExerpt key={postId} postId={postId} />
+    content = orderedPostsIds.map((postId: EntityId, index: number) => (
+      <PostExerpt key={index} postId={postId} />
     ));
   } else if (postStatus === DataStatus.FAILED) {
     content = <div>{error}</div>;

@@ -1,10 +1,8 @@
-import { EntityId } from '@reduxjs/toolkit';
-import React from 'react'
 import { Link, useParams, useRevalidator } from 'react-router-dom'
 import { useAppSelector } from '../../app/hooks';
 import { RootState } from '../../app/store';
-import { Post, selectAllPosts, selectPostsByUser } from '../posts/postsSlice';
-import { selectUserById, User } from './usersSlice';
+import { Post, selectPostsByUser } from '../posts/postsSlice';
+import { selectUserById } from './usersSlice';
 
 export const UserPage = () => {
 

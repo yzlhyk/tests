@@ -142,6 +142,16 @@ p.post-content {
   border-radius: 4px;
   font-weight: 700;
   padding: 0.75rem 1.5rem;
+  
+}
+
+.button.delete {
+  background: #cf1d1d;
+  margin-left: 0.5rem;
+}
+
+.button.delete:hover {
+  background: #881313;
 }
 
 button:disabled,
